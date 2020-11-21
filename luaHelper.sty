@@ -1,0 +1,13 @@
+\ProvidesPackage{luaHelper}
+\RequirePackage{luacode}
+\RequirePackage{siunitx}
+\directlua{
+    path= "\packagePath"
+    import = require(path.."/luaHelper/luaHelper")
+}
+\newcommand\luVal[1]{%
+    \directlua{tex.sprint(#1)}%
+}
+\newcommand\siluVal[3][scaler]{%
+    \SI{\directlua{printNum(#2,#1)}}{#3}%
+}

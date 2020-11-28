@@ -8,17 +8,12 @@ function printNum(num, reduce)
     end
 end
 function optsToTable(opts)
-    print(opts)
     if opts == 'empty' then
         return ''
     end
     inputs = {}
     for set in string.gmatch(opts, '([^,]+)') do
-        print('in loop')
-        print(set)
         for key, value in string.gmatch(set, '(%w+)%s*=%s*(.*),*') do
-            print(key)
-            print(value)
             inputs[key] = value
         end
     end

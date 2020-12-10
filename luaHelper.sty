@@ -11,5 +11,9 @@
 \newcommand\siluVal[3][scaler]{%
     \SI{\directlua{printNum(#2,#1)}}{#3}%
 }
-\newcommand\printLuaTable[][opts]{
+\newcommand\printLuaTable[2][empty]{
+    \directlua{
+        local optsTable = optsToTable([[#1]])
+        printTable(#2, optsTable)
+    }
 }

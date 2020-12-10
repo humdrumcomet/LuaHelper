@@ -16,6 +16,8 @@ function printTable(tableItems, modifiers)
     modifiers.depth = modifiers.depth or 1
     modifiers.depth = modifiers.depth-1
     depth = modifiers.depth
+    wrap = modifiers.wrap or 'simpIt'
+    call = loadstring('return '..wrap..'(...)')
     if not modifiers.curDepth then
         modifiers.curDepth = 1
     else
@@ -27,12 +29,12 @@ function printTable(tableItems, modifiers)
     elseif curDept==2 then
         align=modifiers.align or 'horz'
     end
-    for i in tableItems do
+    for i in call(tableItems) do
         if align=='vert' then
             tex.sprint(prepend)
         end
         if depth>0 then
-            printTable(itPyObj(i), modifiers)
+            printTable(i, modifiers)
         else
             tex.sprint(i)
             if align=='horz' then
@@ -47,7 +49,7 @@ function printTable(tableItems, modifiers)
 end
 function optsToTable(opts)
     if opts == 'empty' then
-        return ''
+        return {}
     end
     interTbl = {}
     inputs = {}
@@ -78,4 +80,15 @@ function optsToTable(opts)
         end
     end
     return inputs
+end
+function simpIt(tbl)
+    local index = 0
+    local count = #tbl
+
+    return function()
+        index = index+1
+        if index <= count then
+            return tbl[index]
+        end
+    end
 end

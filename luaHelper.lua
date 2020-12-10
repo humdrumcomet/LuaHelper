@@ -9,32 +9,40 @@ function printNum(num, reduce)
 end
 function printTable(tableItems, modifiers)
     print('----------in print')
-    modifier.curDepth = modifiers.curDepth+1 or 1
-    curDepth = modifiers.curDepth
     pre= modifiers.pre or ''
     app= modifiers.app or ''
     sep= modifiers.sep or ''
     slice = modifiers.slice or ''
-    depth = modifiers.depth-1 or 0
-    modifiers.depth = depth
-    align= modifiers.align or 'vert'
+    modifiers.depth = modifiers.depth or 1
+    modifiers.depth = modifiers.depth-1
+    depth = modifiers.depth
+    if not modifiers.curDepth then
+        modifiers.curDepth = 1
+    else
+        modifiers.curDepth = modifiers.curDepth+1
+    end
+    curDepth = modifiers.curDepth
+    if curDept==1 then
+        align=modifiers.align or 'vert'
+    elseif curDept==2 then
+        align=modifiers.align or 'horz'
+    end
     for i in tableItems do
-        tex.sprint(prepend)
+        if align=='vert' then
+            tex.sprint(prepend)
+        end
         if depth>0 then
-            printTable(i, modifiers)
+            printTable(itPyObj(i), modifiers)
         else
             tex.sprint(i)
+            if align=='horz' then
+                tex.sprint(sep)
+            end
         end
-        tex.print(append)
-        if align == 'vert' then
+        if align=='vert' then
+            tex.sprint(pre)
             tex.print('')
         end
-        --print('test')
-        --if then
-        --  tex.print()
-        --  tex.sprint()
-        --else
-        --end
     end
 end
 function optsToTable(opts)

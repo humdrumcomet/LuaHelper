@@ -7,8 +7,29 @@ function printNum(num, reduce)
         return tex.sprint(string.format("%0.4e", num/reduce))
     end
 end
+function procTblOpts(opts)
+    fullOpts = {}
+    depth = opts.depth or 1
+    knownFuncs = {
+        itPyObj = 'itPyObj',
+        itPyPair = 'itPyPair'
+    }
+    if depth==1 then
+        fullOpts['pre'] = opts.pre or ''
+        fullOpts['app'] = opts.app or ''
+        fullOpts['sep'] = opts.sep or ''
+        local wrap = knownFunc[opts.wrap] or 'simpIt'
+        fullOpts['wrap'] = loadstring('return '..wrap..'(...)')
+        fullOpts['align'] = opts.align or 'vert'
+    elseif depth>1 then
+        for i = 1, depth, 1 do
+            if 
+        end
+    end
+end
 function printTable(tableItems, modifiers)
     print('----------in print')
+    opts = procTblOpts(modifiers)
     pre= modifiers.pre or ''
     app= modifiers.app or ''
     sep= modifiers.sep or ''
@@ -51,29 +72,24 @@ function optsToTable(opts)
     if opts == 'empty' then
         return {}
     end
-    interTbl = {}
-    inputs = {}
-    quotePat = "(%w+)%s*=%s*(%b''),*"
-    quoteRm = "%w+%s*=%s*%b'',*"
-    brackPat = '(%w+)%s*=%s*(%b{}),*'
-    brackRm = '%w+%s*=%s*%b{},*'
-    commaPat = '([^,]+)'
-    equalsPat = '(%w+)%s*=%s*(.*),*'
+    local interTbl = {}
+    local inputs = {}
+    local quotePat = "(%w+)%s*=%s*(%b''),*"
+    local quoteRm = "%w+%s*=%s*%b'',*"
+    local brackPat = '(%w+)%s*=%s*(%b{}),*'
+    local brackRm = '%w+%s*=%s*%b{},*'
+    local commaPat = '([^,]+)'
+    local equalsPat = '(%w+)%s*=%s*(.*),*'
     for key, value in string.gmatch(opts, quotePat) do
-        inter = string.gsub(value, "'$", "")
-        item = string.gsub(inter, "^'", "")
+        local inter = string.gsub(value, "'$", "")
+        local item = string.gsub(inter, "^'", "")
         inputs[key] = item
     end
     for key, value in string.gmatch(opts, brackPat) do
-        inputs[key] = {}
-        inter = string.gsub(value, "}$", "")
-        item = string.gsub(inter, "^{", "")
-        for set in string.gmatch(item, commaPat) do
-            table.insert(inputs[key], set)
-        end
+        inputs[key] = commaSepValToTbl(value)
     end
-    inter = string.gsub(opts, quoteRm, '')
-    item = string.gsub(inter, brackRm, '')
+    local strItemRemoved = string.gsub(opts, quoteRm, '')
+    local tblItemRemoved = string.gsub(strItemsRemoved, brackRm, '')
     for set in string.gmatch(item, commaPat) do
         for key, value in string.gmatch(set, equalsPat) do
             inputs[key] = value
@@ -91,4 +107,16 @@ function simpIt(tbl)
             return tbl[index]
         end
     end
+end
+function commaSepValToTbl(commaStr)
+    local returnTbl = {}
+    local commaPat = '([^,]+)'
+    local inter = string.gsub(commaStr, "}$", "")
+    local item = string.gsub(inter, "^{", "")
+    for idx, value in string.gmatch(item, commaPat) do
+        local noTrailing = string.gsub(value, "'$", "")
+        local noLeading = string.gsub(inter, "^'", "")
+        returnTbl[idx] = item
+    end
+    return returnTbl
 end

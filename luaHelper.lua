@@ -1,61 +1,53 @@
 -----------------------------General
-function printNum(num, reduce)
-    reduce = reduce or 1
+function printNum(num, reduce, decimal, form)
+    local reduce = reduce or 1
+    local form = form or 'sci'
+    local decPl = decPl or '3'
     if math.abs(num/reduce)<1000 and math.abs(num/reduce)>1e-2 then
-        return tex.sprint(string.format("%0.2f", num/reduce))
+        return tex.sprint()
     else
         return tex.sprint(string.format("%0.4e", num/reduce))
     end
 end
-function procTblOpts(opts)
-    fullOpts = {}
-    depth = opts.depth or 1
-    knownFuncs = {
+--function formatNum(num, reduce)
+    --local reduce = reduce or 1
+    --local form = form or 'sci'
+    --local decPl = decPl or '3'
+    --if form == 'sci' then
+        --return string.format("%0.2f", num/reduce)
+    --else
+function procTblOpts(opts, curDepth)
+    local curDepth = curDepth
+    local fullOpts = {}
+    local knownFunc = {
         itPyObj = 'itPyObj',
         itPyPair = 'itPyPair'
     }
-    if depth==1 then
-        fullOpts['pre'] = opts.pre or ''
-        fullOpts['app'] = opts.app or ''
-        fullOpts['sep'] = opts.sep or ''
-        local wrap = knownFunc[opts.wrap] or 'simpIt'
-        fullOpts['wrap'] = loadstring('return '..wrap..'(...)')
-        fullOpts['align'] = opts.align or 'vert'
-    elseif depth>1 then
-        for i = 1, depth, 1 do
-            if 
-        end
-    end
+    fullOpts['depth'] = tonumber(opts.depth) or 1
+    fullOpts['pre'] = isInTbl(opts.pre, curDepth) or opts.pre or ''
+    fullOpts['app'] = isInTbl(opts.app, curDepth) or opts.app or ''
+    fullOpts['sep'] = isInTbl(opts.sep, curDepth) or opts.sep or ''
+    local preWrap = isInTbl(opts.wrap, curDepth) or opts.wrap or ''
+    fullOpts['wrap'] = knownFunc[preWrap] or 'simpIt'
+    fullOpts['align'] = isInTbl(opts.align, curDepth) or alignOpts(curDepth) or ''
+    return fullOpts
 end
-function printTable(tableItems, modifiers)
-    print('----------in print')
-    opts = procTblOpts(modifiers)
-    pre= modifiers.pre or ''
-    app= modifiers.app or ''
-    sep= modifiers.sep or ''
-    slice = modifiers.slice or ''
-    modifiers.depth = modifiers.depth or 1
-    modifiers.depth = modifiers.depth-1
-    depth = modifiers.depth
-    wrap = modifiers.wrap or 'simpIt'
-    call = loadstring('return '..wrap..'(...)')
-    if not modifiers.curDepth then
-        modifiers.curDepth = 1
-    else
-        modifiers.curDepth = modifiers.curDepth+1
-    end
-    curDepth = modifiers.curDepth
-    if curDept==1 then
-        align=modifiers.align or 'vert'
-    elseif curDept==2 then
-        align=modifiers.align or 'horz'
-    end
-    for i in call(tableItems) do
+function printTable(tableItems, modifiers, curDepth)
+    local curDepth = curDepth or 0
+    local curDepth = curDepth+1
+    local opts = procTblOpts(modifiers, curDepth)
+    local pre = opts['pre']
+    local app = opts['app']
+    local sep = opts['sep']
+    local wrap = loadstring('return '..opts['wrap']..'(...)')
+    local align = opts['align']
+    local depth = opts['depth']
+    for i in wrap(tableItems) do
         if align=='vert' then
-            tex.sprint(prepend)
+            tex.sprint(pre)
         end
-        if depth>0 then
-            printTable(i, modifiers)
+        if curDepth<depth then
+            printTable(i, modifiers, curDepth)
         else
             tex.sprint(i)
             if align=='horz' then
@@ -63,7 +55,7 @@ function printTable(tableItems, modifiers)
             end
         end
         if align=='vert' then
-            tex.sprint(pre)
+            tex.sprint(app)
             tex.print('')
         end
     end
@@ -89,8 +81,8 @@ function optsToTable(opts)
         inputs[key] = commaSepValToTbl(value)
     end
     local strItemRemoved = string.gsub(opts, quoteRm, '')
-    local tblItemRemoved = string.gsub(strItemsRemoved, brackRm, '')
-    for set in string.gmatch(item, commaPat) do
+    local tblItemRemoved = string.gsub(strItemRemoved, brackRm, '')
+    for set in string.gmatch(tblItemRemoved, commaPat) do
         for key, value in string.gmatch(set, equalsPat) do
             inputs[key] = value
         end
@@ -119,4 +111,19 @@ function commaSepValToTbl(commaStr)
         returnTbl[idx] = item
     end
     return returnTbl
+end
+function isInTbl(t, idx)
+    if type(t) == 'table' then
+        return t[idx]
+    else
+        return nil
+    end
+end
+function alignOpts(curDepth)
+    local curDepth = curDepth or 1
+    if curDepth%2 == 1 then
+        return 'vert'
+    else
+        return 'horz'
+    end
 end

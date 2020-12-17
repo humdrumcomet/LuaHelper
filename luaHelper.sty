@@ -5,11 +5,17 @@
     path= "\packagePath"
     import = require(path.."/luaHelper/luaHelper")
 }
-\newcommand\luVal[1]{%
-    \directlua{tex.sprint(#1)}%
+\newcommand\luVal[2][empty]{%
+    \directlua{
+        local optsTable = optsToTable([[#1]])
+        tex.sprint(formatNum(#2,#1))
+    }%
 }
-\newcommand\siluVal[3][scaler]{%
-    \SI{\directlua{printNum(#2,#1)}}{#3}%
+\newcommand\siluVal[3][empty]{%
+    \SI{\directlua{
+        local optsTable = optsToTable([[#1]])
+        tex.sprint(formatNum(#2,optsTable))
+    }}{#3}%
 }
 \newcommand\printLuaTable[2][empty]{
     \directlua{

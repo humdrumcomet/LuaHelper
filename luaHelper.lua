@@ -1,21 +1,14 @@
 -----------------------------General
-function printNum(num, reduce, decimal, form)
-    local reduce = reduce or 1
-    local form = form or 'sci'
-    local decPl = decPl or '3'
-    if math.abs(num/reduce)<1000 and math.abs(num/reduce)>1e-2 then
-        return tex.sprint()
-    else
-        return tex.sprint(string.format("%0.4e", num/reduce))
-    end
+function formatNum(num, opts)
+    local formTbl ={
+        sci= 'e',
+        flt= 'f'
+    }
+    local reduce = opts.reduce or 1
+    local form = formTbl[opts.form] or 'e'
+    local decPl = opts.decPl or '3'
+    return string.format("%0."..decPl..form, num/reduce)
 end
---function formatNum(num, reduce)
-    --local reduce = reduce or 1
-    --local form = form or 'sci'
-    --local decPl = decPl or '3'
-    --if form == 'sci' then
-        --return string.format("%0.2f", num/reduce)
-    --else
 function procTblOpts(opts, curDepth)
     local curDepth = curDepth
     local fullOpts = {}
@@ -23,35 +16,45 @@ function procTblOpts(opts, curDepth)
         itPyObj = 'itPyObj',
         itPyPair = 'itPyPair'
     }
-    fullOpts['depth'] = tonumber(opts.depth) or 1
-    fullOpts['pre'] = isInTbl(opts.pre, curDepth) or opts.pre or ''
-    fullOpts['app'] = isInTbl(opts.app, curDepth) or opts.app or ''
-    fullOpts['sep'] = isInTbl(opts.sep, curDepth) or opts.sep or ''
+    fullOpts.depth = tonumber(opts.depth) or 1
+    fullOpts.pre = isInTbl(opts.pre, curDepth) or opts.pre or ''
+    fullOpts.app = isInTbl(opts.app, curDepth) or opts.app or ''
+    fullOpts.sep = isInTbl(opts.sep, curDepth) or opts.sep or ''
     local preWrap = isInTbl(opts.wrap, curDepth) or opts.wrap or ''
-    fullOpts['wrap'] = knownFunc[preWrap] or 'simpIt'
-    fullOpts['align'] = isInTbl(opts.align, curDepth) or alignOpts(curDepth) or ''
+    fullOpts.wrap = knownFunc[preWrap] or 'simpIt'
+    fullOpts.align = isInTbl(opts.align, curDepth) or alignOpts(curDepth) or ''
+    fullOpts.format = opts.formatVal or 'empty'
     return fullOpts
 end
 function printTable(tableItems, modifiers, curDepth)
     local curDepth = curDepth or 0
     local curDepth = curDepth+1
     local opts = procTblOpts(modifiers, curDepth)
-    local pre = opts['pre']
-    local app = opts['app']
-    local sep = opts['sep']
-    local wrap = loadstring('return '..opts['wrap']..'(...)')
-    local align = opts['align']
-    local depth = opts['depth']
+    local pre = opts.pre
+    local app = opts.app
+    local sep = opts.sep
+    local wrap = loadstring('return '..opts.wrap..'(...)')
+    local align = opts.align
+    local depth = opts.depth
+    local formatOpts = opts.format
+    local count = 0
     for i in wrap(tableItems) do
+        count = count+1
+        local formatOptsCount = formatOpts[count] or formatOpts
+        local formatOptsCount = optsToTable(formatOptsCount)
         if align=='vert' then
             tex.sprint(pre)
         end
         if curDepth<depth then
             printTable(i, modifiers, curDepth)
         else
-            tex.sprint(i)
-            if align=='horz' then
+            if align=='horz' and count>1 then
                 tex.sprint(sep)
+            end
+            if next(formatOptsCount) == nil then
+                tex.sprint(i)
+            else
+                tex.sprint(formatNum(i, formatOptsCount))
             end
         end
         if align=='vert' then
@@ -92,7 +95,6 @@ end
 function simpIt(tbl)
     local index = 0
     local count = #tbl
-
     return function()
         index = index+1
         if index <= count then
@@ -105,10 +107,28 @@ function commaSepValToTbl(commaStr)
     local commaPat = '([^,]+)'
     local inter = string.gsub(commaStr, "}$", "")
     local item = string.gsub(inter, "^{", "")
-    for idx, value in string.gmatch(item, commaPat) do
-        local noTrailing = string.gsub(value, "'$", "")
-        local noLeading = string.gsub(inter, "^'", "")
-        returnTbl[idx] = item
+    local valStore = ''
+    local storeCount = 0
+    local quoteCount = 0
+    for value in string.gmatch(item, commaPat) do
+        if string.match(value, "^'") and not string.match(value, "'$") then
+            valStore = value..','
+            quoteCount = 1
+        elseif string.match(value, "'$") then
+            valStore = valStore..value
+            quoteCount = 0
+            storeCount = storeCount+1
+            local noTrailing = string.gsub(valStore, "'$", "")
+            local noLeading = string.gsub(noTrailing, "^'", "")
+            returnTbl[storeCount] = noLeading
+            valStore = ''
+        elseif quoteCount>0 then
+            valStore = valStore..value..','
+        else
+            storeCount = storeCount+1
+            returnTbl[storeCount] = value
+            print(returnTbl[storeCount])
+        end
     end
     return returnTbl
 end

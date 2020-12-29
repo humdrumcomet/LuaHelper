@@ -1,9 +1,11 @@
 \ProvidesPackage{luaHelper}
 \RequirePackage{luacode}
 \RequirePackage{siunitx}
+
 \directlua{
-    path= "\packagePath"
-    import = require(path.."/luaHelper/luaHelper")
+    local sourcefile = kpse.find_file('luaHelper.sty')
+    local packagePath = string.match(sourcefile, '(.*/)')
+    import = require(packagePath..'luaHelper')
 }
 \newcommand\luVal[2][empty]{%
     \directlua{
@@ -20,6 +22,15 @@
 \newcommand\printLuaTable[2][empty]{
     \directlua{
         local optsTable = optsToTable([[#1]])
-        printTable(#2, optsTable)
+        print(optsTable.kind)
+        if optsTable.kind == 'py' then
+            print('in kind------------')
+            optsTable.wrap = optsTable.wrap or 'itPyObj'
+            pyStr = "#2"
+            print(pyStr)
+            printTable(pySlice(pyStr), optsTable)
+        else
+            printTable(#2, optsTable)
+        end
     }
 }

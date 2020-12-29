@@ -14,7 +14,9 @@ function procTblOpts(opts, curDepth)
     local fullOpts = {}
     local knownFunc = {
         itPyObj = 'itPyObj',
-        itPyPair = 'itPyPair'
+        itPyPair = 'itPyPair',
+        lua = 'simpIt',
+        py = 'itPyObj'
     }
     fullOpts.depth = tonumber(opts.depth) or 1
     fullOpts.pre = isInTbl(opts.pre, curDepth) or opts.pre or ''
@@ -79,15 +81,18 @@ function optsToTable(opts)
         local inter = string.gsub(value, "'$", "")
         local item = string.gsub(inter, "^'", "")
         inputs[key] = item
+        print(inputs[key])
     end
     for key, value in string.gmatch(opts, brackPat) do
         inputs[key] = commaSepValToTbl(value)
+        print(inputs[key])
     end
     local strItemRemoved = string.gsub(opts, quoteRm, '')
     local tblItemRemoved = string.gsub(strItemRemoved, brackRm, '')
     for set in string.gmatch(tblItemRemoved, commaPat) do
         for key, value in string.gmatch(set, equalsPat) do
             inputs[key] = value
+            print(inputs[key])
         end
     end
     return inputs

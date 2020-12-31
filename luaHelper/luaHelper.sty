@@ -19,18 +19,18 @@
         tex.sprint(formatNum(#2,optsTable))
     }}{#3}%
 }
-\newcommand\printLuaTable[2][empty]{
+
+\newcommand\printLuaData[2][empty]{
     \directlua{
         local optsTable = optsToTable([[#1]])
-        print(optsTable.kind)
-        if optsTable.kind == 'py' then
-            print('in kind------------')
-            optsTable.wrap = optsTable.wrap or 'itPyObj'
-            pyStr = "#2"
-            print(pyStr)
-            printTable(pySlice(pyStr), optsTable)
-        else
-            printTable(#2, optsTable)
-        end
-    }
+        printData(#2, optsTable)
+    }%
 }
+
+\newcommand\printDataTable[2][empty]{
+    \directlua{
+        local optsTable = optsToTable([[#1]])
+        printTable(#2, optsTable)
+    }%
+}
+

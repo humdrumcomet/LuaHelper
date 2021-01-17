@@ -1,4 +1,5 @@
 \ProvidesPackage{luaHelper}
+\RequirePackage{luapackageloader}
 \RequirePackage{luacode}
 \RequirePackage{siunitx}
 
@@ -7,29 +8,42 @@
     local packagePath = string.match(sourcefile, '(.*/)')
     import = require(packagePath..'luaHelper')
 }
+\newcommand\luVar[1]{%
+    \directlua{
+        print('Printing '..[[#1]]..': '..#1)
+        tex.sprint(#1)
+    }%
+}
 \newcommand\luVal[2][empty]{%
     \directlua{
         local optsTable = optsToTable([[#1]])
-        tex.sprint(formatNum(#2,#1))
+        local formatted = formatNum(#2,optsTable)
+        print('Printing '..[[#2]]..': '..formatted)
+        tex.sprint(formatted)
     }%
 }
 \newcommand\siluVal[3][empty]{%
-    \SI{\directlua{
-        local optsTable = optsToTable([[#1]])
-        tex.sprint(formatNum(#2,optsTable))
-    }}{#3}%
+    \SI{
+        \directlua{
+            local optsTable = optsToTable([[#1]])
+            local formatted = formatNum(#2,optsTable)
+            print('Printing '..[[#2]]..': '..formatted)
+            tex.sprint(formatted)
+        }}{#3}%
 }
-
 \newcommand\printLuaData[2][empty]{
     \directlua{
         local optsTable = optsToTable([[#1]])
+        print('Printing '..[[#2]]..' in Place: ')
         printData(#2, optsTable)
     }%
 }
 
+
 \newcommand\printDataTable[2][empty]{
     \directlua{
         local optsTable = optsToTable([[#1]])
+        print('Printing '..[[#2]]..' to a TeX Table: ')
         printTable(#2, optsTable)
     }%
 }

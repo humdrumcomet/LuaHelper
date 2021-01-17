@@ -1,0 +1,101 @@
+% arara: lualatex
+% arara: lualatex
+
+\providecommand{\sharedPath}{../../Shared}
+\providecommand{\sourcePath}{../../../luaHelper}
+\providecommand{\importPath}{\sharedPath/Imports}
+\providecommand{\assetPath}{\sharedPath/Assets}
+\providecommand{\codePath}{\sharedPath/Assets/LuaCode}
+
+\documentclass[hidelinks, 12pt]{article}%
+
+\input{\importPath/preambleGen}
+%-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+\directlua{
+    path = "\codePath"
+    demo = require(path.."/demo")
+    test=5
+    packageFileSty = kpse.find_file('luaHelper.sty')
+    packageFileLua = string.match(packageFileSty, '(.*/)')
+}
+
+\begin{document}
+    \frontmatter
+        \begin{center}
+            \vspace*{1cm}
+            \section*{\Huge Lua Helper}%\addcontentsline{toc}{section}{Title Page}
+            \vspace{6cm}
+            \begin{centering}
+                \Large{Package by: Aaron English\\
+                Date: \today}
+            \end{centering}
+        \end{center}
+        \thispagestyle{empty}
+
+    \clearpage
+    \mainmatter
+        \section{Introducion}
+        \section{For the Impatient}
+        \lstinline[language={[LaTeX]TeX}]!\luVar{<lua code>}! - \verb|luaVar| is a lua variable accessor whos purpose is
+            simply to remove the extra step of the typical \verb|\directlua{tex.sprint(<value>)}|
+            
+            \lstinline[language={[LaTeX]TeX}]!\luVal[reduce=<num>, form=<f,e>, decPl=<int>]{<lua code>}! - \verb|luaVal| is a
+            number printer and formatter
+
+            \lstinline[language={[LaTeX]TeX}]!\siluVal[reduce=<num>, form=<f,e>, decPl=<num>]{<lua code>}{<siunitx units>}!
+
+            \lstinline[language={[LaTeX]TeX}]!\printLuaData[pre={'<prepend>', ...}, app={'<append>', ...}, sep={'<separation>', ...}, align={<horz,vert>, ...}, depth=<int>, format={'reduce=<num>, form=<f,e>, decPl=<int>', ...}]!
+
+            \lstinline[language={[LaTeX]TeX}]!\printDataTable[cap='<caption>', format=<c,l,r>|..., header={<col head>, ...}, label=tab:<label>, pre={'<prepend>', ...}, app={'<append>', ...}, sep={'<separation>', ...}, align={<horz,vert>, ...}, depth=<int>, format={'reduce=<num>, form=<f,e>, decPl=<int>', ...}]!
+
+        \section{Usage and Limitations}
+            %\subsection{Plate Dimensions}
+                %Starting from a $w$ of \SI{500}{\micro\meter} and going to a depth of 
+                %\SI{290}{\micro\meter} the resultant plate will be 
+                %\siluVal[1e-6]{etchDimA(500e-6, 290e-6)}{\micro\meter} wide.
+
+            %\subsection{Mask and Plate Thicknesses}
+                %The \SI{3}{\micro\meter} \ch{SiO2} layer will take a total of 
+                %\siluVal{3e-6/5e-9}{\min} to etch away completely at an etch rate
+                %of \SI{5}{\nano\meter\per\min}. The well on the other hand, with a target depth of 
+                %\SI{290}{\micro\meter} only takes \siluVal{290e-6/0.8e-6}{\min} to
+                %etch at an rate of \SI{0.8}{\micro\meter\per\min}. From this, assuming that time 
+                %can be controlled to a resolution of minutes, if the etching proceeds for 
+                %\SI{362}{\min}, then the plate will be 
+                %\siluVal[reduce=1e-6]{etchTime(0.8e-6,300e-6,362)}{\micro\meter} thick, 
+                %and the remaining \ch{SiO2} layer will be 
+                %\siluVal[reduce=1e-6]{etchTime(5e-9,3e-6,362)}{\micro\meter} thick.
+
+            %\subsection{Acceptable Variation in Thickness}
+                %If a \SI{5}{\percent} variation in applied pressure is the acceptable range for the
+                %This process can be repeated for a negative \SI{5}{\percent} variation in strain
+                %resulting in an acceptable variation range of thickness of  
+                %\siluVal{math.abs(math.sqrt(0.95)-1)*100}{\percent} and 
+                %\siluVal{-math.abs(math.sqrt(1.05)-1)*100}{\percent} from the
+                %nominal value.
+
+        %\section{Q2: Surface Micromachining}
+            %\subsection{Comparing Stresses}
+
+                %Recalling that the plate in the bulk micromachined device was 
+                %\siluVal[reduce=1e-6, decPl=6, form=flt]{etchDimA(500e-6, 290e-6)}{\micro\meter} wide, and 
+                %knowing that the width of the surface micromachined device must be one-fifth,
+                %we can conclude that the width of the surface micromachined device must be
+                %\siluVal[reduce=1e-6,form=flt]{etchDimA(500e-6, 290e-6)/5}{\micro\meter}.
+
+    \backmatter
+        \clearpage
+        \section{Demo Lua Code}
+            All code was executed through lualatex
+            \lstinputlisting[language={[5.3]Lua}]{\codePath/demo.lua}
+
+        \clearpage
+        \section{TeX Code}
+            \lstinputlisting[language={[LaTex]TeX}]{\sourcePath/luaHelper.sty}
+        
+        \clearpage
+        \section{Lua Code}
+            \lstinputlisting[language={[5.3]Lua}]{\sourcePath/luaHelper.lua}
+
+\end{document}

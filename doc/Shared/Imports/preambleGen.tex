@@ -1,0 +1,53 @@
+\usepackage{hyperref}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage{listings}
+
+%Add Custom Packages
+\usepackage{luaHelper}
+
+% Front matter, main matter, and back matter definitions
+\def\frontmatter{%
+ \pagenumbering{roman}
+ \setcounter{page}{1}
+ \renewcommand{\thesection}{\roman{section}}
+}%
+\def\mainmatter{%
+ \pagenumbering{arabic}
+ \setcounter{page}{1}
+ \setcounter{section}{0}
+ \renewcommand{\thesection}{\arabic{section}}
+}%
+\def\backmatter{%
+ \setcounter{section}{0}
+ \renewcommand{\thesection}{\Alph{section}}
+}%
+
+% Package Configurations
+% SI unit pkg conf
+\sisetup{
+    load-configurations = abbreviations,
+    detect-family = true,
+    per-mode = reciprocal
+}%
+% xcolor package adding colours
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+% Listings package defining code highlighting colours
+\lstset{%
+    backgroundcolor=\color{white}, % choose the background color
+    breaklines=true, % automatic line breaking only at whitespace
+    captionpos=b, % sets the caption-position to bottom
+    commentstyle=\color{mygreen}, % comment style
+    escapeinside={\%*}{*)}, % if you want to add LaTeX within your code
+    keywordstyle=\color{blue}, % keyword style
+    stringstyle=\color{mymauve}, % string literal style
+    tabsize=2, % Set tabs to be displayed as 2 spaces
+    showstringspaces=false, % Don't show string spaces as special characters
+    basicstyle=\linespread{1}\footnotesize, % size of fonts used for the code and spacing on the lines (force to 1)
+    literate={\ \ }{{\ }}1, % Convert two spaces to 1 (for soft tab)
+    numbers=left, % display linenubers to the left
+    caption={\protect\filename@parse{\lstname}\protect\filename@base\text{.}\protect\filename@ext} % give filename as caption
+}

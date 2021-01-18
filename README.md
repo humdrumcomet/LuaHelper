@@ -8,12 +8,9 @@ will work without too much effort on any unix based system).
 ## Requirements
 This package requires the following LuaLaTeX packages:
 
-`luapackageloader` - Available in standard tex distributions
-
-`luacode` - Available in standard tex distributions
-
-`siunitx` - Available in standard tex distributions
-
+`luapackageloader` - Available in standard tex distributions\
+`luacode` - Available in standard tex distributions\
+`siunitx` - Available in standard tex distributions\
 
 ## Installation
 To install this package manually, first make sure that you have a local texmf directory with a
